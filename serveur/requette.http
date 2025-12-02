@@ -1,0 +1,15 @@
+POST http://localhost:3000/addcompte HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Luna",
+    "email": "kerian.delourmel@gmail.com",
+    "mdp": "kerian"
+}
+
+POST http://localhost:3000/addPost HTTP/1.1
+Content-Type: application/json
+
+{
+    "id_compte": "e3294bf5-81cf-4bfa-9f3f-773c98f6b2c4"
+}
