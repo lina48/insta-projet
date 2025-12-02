@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Sign up</title>
+</head>
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation"> <!-- Boutons en haut de la page  -->
+        <div class="navbar-menu">
+            <!-- cote gauche  -->
+            <div class="navbar-start">
+            </div>
+            <!--  cote a droite  -->
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <h class="headTitle">BES Loan</h>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <h1 class="bigTitle">S'inscrire</h1>
+
+    <div class="box" style="margin-bottom: 1.5rem;">
+        <form id="signupForm">
+            <!-- ID caché pour le mode modification -->
+
+            <label class="label" for="email">Adresse email:</label>
+            <input id="email" class="input" type="text" placeholder="adresse@hotmail.com" required>
+            <br>
+
+            <label class="label" for="nom">Votre nom:</label>
+            <input id="name" class="input" type="text" placeholder="Lorry" required>
+            <br>
+
+            <label class="label" for="password">Mot de passe:</label>
+            <input id="password" class="input" type="password" placeholder="●●●●●●●●●●●●" required>
+            <br>
+
+            <div class="column is-12">
+                <div class="field is-grouped">
+                    <div class="control">
+                        <!-- id changed to ajouterBtn to match script -->
+                        <button id="enterBtn" class="button is-link" type="submit">Créer</button>
+                    </div>
+                    <div class="control">
+                        
+                    </div>
+                </div>
+            </div>
+            <br>
+        </form>
+        <a id="signupBtn" class="button is-light" type="button" style="display:none;" href="Login.html">Déja un compte?</a>
+    </div>
+    <script src="Script/signup.js"></script>
+</body>
+</html>

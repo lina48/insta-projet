@@ -44,6 +44,14 @@ body {
     align-items: center;     /* centre verticalement */
     min-height: 100vh;       /* s’assure que body prend toute la hauteur */
 }
+
+.bigTitle {
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 /* Ajouter un filtre flou derrière le container */
 .login-container {
     width: 350px;
@@ -105,3 +113,5 @@ body {
     margin-bottom: 10px;
     box-sizing: border-box;
 }
+
+
