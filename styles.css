@@ -1,0 +1,35 @@
+body{background:#f5f5f5;margin:0}
+.main-layout{display:flex;gap:2rem;margin-top:1rem}
+.sidebar{width:280px;padding:1rem;position:fixed;left:0;top:70px;height:calc(100vh - 70px);border-right:1px solid #dbdbdb;background:white;overflow-y:auto}
+.feed-container{flex:1;margin-left:300px;display:flex;justify-content:center}
+.menu-list a{display:flex;align-items:center;gap:12px;color:#363636;padding:0.75rem 1rem;border-radius:6px;transition:all 0.2s}
+.menu-list a:hover{background:#f5f5f5;color:#3273dc}
+.menu-list a.is-active{background:#eef6ff;color:#3273dc;font-weight:bold}
+.menu-list .icon{width:20px;display:flex;align-items:center;justify-content:center}
+#profileNav{display:flex;align-items:center;gap:12px}
+#profileNav img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+#profileNav .profile-info strong{font-size:0.95rem}
+#authButtons .button{margin-left:0.5rem}
+.card-image{width:100%;overflow:hidden}
+.card-image img{object-fit:cover;width:100%;height:auto;display:block}
+.post-card{max-width:720px;margin:0.75rem auto;width:95%}
+.post-wrapper{width:100%;display:flex;justify-content:center}
+.post-meta{display:flex;align-items:center;gap:0.75rem}
+.hashtags{margin-top:0.5rem}
+.hashtag{background:#eef6ff;color:#0960bd;padding:3px 8px;border-radius:14px;margin-right:6px;font-size:0.85rem;cursor:pointer}
+.comment{font-size:0.9rem;margin-top:6px}
+.like-btn.is-active{color:#ff3860}
+.card .media-left img{border-radius:50%}
+.share-btn{color:#4a4a4a}
+.modal-card{width:420px}
+.card-content{max-height:260px;overflow:hidden}
+.card-content.expanded{max-height:none;overflow:visible}
+.show-more-btn{background:none;border:none;color:#3273dc;cursor:pointer;padding:0;margin-top:6px}
+#feed{display:block}
+@media(max-width:1023px){
+  .main-layout{flex-direction:column;gap:0;margin-top:0}
+  .sidebar{position:relative;width:100%;top:0;left:0;border-right:none;border-bottom:1px solid #dbdbdb;height:auto;padding:0.5rem 0}
+  .feed-container{margin-left:0}
+  .menu-list{display:flex;flex-direction:row;gap:0.5rem;overflow-x:auto;padding:0.5rem}
+  .menu-list a{padding:0.5rem 0.75rem;font-size:0.9rem}
+}

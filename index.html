@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InstaClone — Demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="#">
+          <strong>InstaClone</strong>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item">
+            <div class="field">
+              <p class="control has-icons-left">
+                <input id="searchInput" class="input" type="text" placeholder="Search hashtags or keywords (e.g. #nature)" />
+                <span class="icon is-left"><i class="fas fa-search"></i></span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div id="profileNav" style="cursor:pointer"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-layout">
+      <aside class="sidebar is-hidden-mobile">
+        <nav class="menu">
+          <ul class="menu-list">
+            <li><a href="#" id="menuHome" class="is-active"><span class="icon"><i class="fas fa-home"></i></span> <span>Accueil</span></a></li>
+            <li><a href="#" id="menuDiscover"><span class="icon"><i class="fas fa-compass"></i></span> <span>Découvrir</span></a></li>
+            <li><a href="#" id="menuSearch"><span class="icon"><i class="fas fa-search"></i></span> <span>Recherche</span></a></li>
+            <li><a href="#" id="menuNewPost" class="is-logged-out"><span class="icon"><i class="fas fa-plus-circle"></i></span> <span>Nouvelle publication</span></a></li>
+            <li><a href="#" id="menuSettings"><span class="icon"><i class="fas fa-cog"></i></span> <span>Paramètres</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <section class="feed-container">
+        <div id="alertContainer"></div>
+        <div id="feed"></div>
+      </section>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="modalSignup" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Sign up</p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Username</label>
+            <div class="control"><input id="suUsername" class="input" type="text" placeholder="username"></div>
+          </div>
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control"><input id="suPassword" class="input" type="password" placeholder="password"></div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button id="submitSignup" class="button is-success">Create account</button>
+          <button class="button cancel">Cancel</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="modalLogin" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Log in</p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Username</label>
+            <div class="control"><input id="liUsername" class="input" type="text" placeholder="username"></div>
+          </div>
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control"><input id="liPassword" class="input" type="password" placeholder="password"></div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button id="submitLogin" class="button is-primary">Log in</button>
+          <button class="button cancel">Cancel</button>
+        </footer>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
