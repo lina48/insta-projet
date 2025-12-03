@@ -1,10 +1,14 @@
-/* Layout general */
+/* style global de la page index.html */
 body {
   background: #f5f5f5;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
 }
-
+#searchInput { 
+  width: 5 rem; 
+  margin-left: 15rem;  
+  margin-top: 0.5 rem;
+} 
 .main-layout {
   display: flex;
   gap: 2rem;
@@ -13,7 +17,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
+  width: 20rem;
   padding: 1rem;
   position: fixed;
   left: 0;
@@ -24,7 +28,7 @@ body {
   overflow-y: auto;
 }
 
-/* Feed container - CENTRÉ */
+/* le style du feed ( posts )*/
 .feed-container {
   flex: 1;
   margin-left: 300px;
@@ -36,7 +40,7 @@ body {
   max-width: 100%;
 }
 
-/* Menu */
+/* menu */
 .menu-list a {
   display: flex;
   align-items: center;
@@ -65,7 +69,7 @@ body {
   justify-content: center;
 }
 
-/* Profile Navigation */
+/* navigation de profile */
 #profileNav {
   display: flex;
   align-items: center;
@@ -87,7 +91,7 @@ body {
   margin-left: 0.5rem;
 }
 
-/* Cards et Posts */
+/*  images de posts */
 .card-image {
   width: 100%;
   overflow: hidden;
@@ -100,7 +104,7 @@ body {
   display: block;
 }
 
-/* Post Card - CENTRÉ AVEC LARGEUR OPTIMALE */
+/* posts card */
 .post-card {
   max-width: 600px;
   margin: 1.5rem auto;
@@ -182,14 +186,14 @@ body {
   width: 100%;
 }
 
-/* Alert Container */
+/* contenaire d'alerte  */
 #alertContainer {
   width: 100%;
   max-width: 600px;
   margin-bottom: 1rem;
 }
 
-/* Responsive */
+/* responsiveness */
 @media(max-width: 1023px) {
   .main-layout {
     flex-direction: column;
