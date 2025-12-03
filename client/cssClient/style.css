@@ -1,0 +1,71 @@
+/* Image de fond floue */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: url('../Image/nuitv1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center; /* centre horizontalement */
+    align-items: center;     /* centre verticalement */
+    min-height: 100vh;       /* s’assure que body prend toute la hauteur */
+}
+/* Ajouter un filtre flou derrière le container */
+.login-container {
+    width: 350px;
+    padding: 40px 30px;
+    background-color: rgba(255, 255, 255, 0.2); /* plus translucide */
+    backdrop-filter: blur(12px);                 /* flou plus prononcé */
+    border-radius: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    color: #ffffff;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);   /* ombre plus douce et diffuse */
+    border: 1px solid rgba(255,255,255,0.3);    /* petite bordure floue */
+}
+
+/* Texte logo Instagram */
+.logo-text {
+    font-family: 'Pacifico', cursive; /* style manuscrit comme Instagram */
+    font-size: 48px;
+    color: #ffffff; /* blanc, change selon ton thème sombre */
+    padding-bottom: 20px;
+}
+
+
+/* Pour ajouter un effet de dégradé type Instagram */
+.logo-text.gradient {
+    background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* Bouton connexion */
+.login-button {
+    background-color: #3897f0;
+    color: #fff;
+    border: none;
+}
+
+.login-button:hover {
+    background-color: #2b76c6;
+}
+
+
+/* Lien mot de passe oublié */
+.forgot-password {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #8a0c9b;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Inputs */
+.input {
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
