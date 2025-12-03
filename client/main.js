@@ -1,65 +1,20 @@
 const API_URL = 'https://picsum.photos/v2/list?page=1&limit=40';
-const STORAGE = {
-  USERS: 'insta_users_v1',
-  CURRENT: 'insta_current_v1',
-  POSTS: 'insta_posts_v1'
-};
-
 const sampleTags = ['#nature','#travel','#photo','#city','#people','#food','#art','#cute','#landscape','#pets','#sunset','#fashion'];
 
 function $(sel){return document.querySelector(sel)}
 function $all(sel){return Array.from(document.querySelectorAll(sel))}
 
-function save(key, val){localStorage.setItem(key, JSON.stringify(val))}
-function load(key, def=null){const v=localStorage.getItem(key);return v?JSON.parse(v):def}
+// compte à partir du serveur 
+let currentAccount = null; 
+let latestPosts = [];
 
 function showAlert(msg, kind='is-info'){
   const container = $('#alertContainer');
-  container.innerHTML = `<div class="notification ${kind}">${msg}</div>`;
-  setTimeout(()=>container.innerHTML='',3000);
+  if(container) container.innerHTML = `<div class="notification ${kind}">${msg}</div>`;
+  setTimeout(()=>{ if(container) container.innerHTML=''; },3000);
 }
 
-// User management
-function initUsers(){if(!load(STORAGE.USERS)) save(STORAGE.USERS, []);} 
-function signup(username,password){
-  const users = load(STORAGE.USERS) || [];
-  if(!username||!password) return {ok:false,msg:'Enter username and password'};
-  if(users.find(u=>u.username===username)) return {ok:false,msg:'Username exists'};
-  users.push({username,password,avatar:`https://i.pravatar.cc/80?u=${encodeURIComponent(username)}`});
-  save(STORAGE.USERS,users);
-  return {ok:true,msg:'Account created'};
-}
-function login(username,password){
-  const users = load(STORAGE.USERS) || [];
-  const u = users.find(x=>x.username===username && x.password===password);
-  if(!u) return {ok:false,msg:'Invalid credentials'};
-  save(STORAGE.CURRENT,u);
-  return {ok:true,msg:'Logged in',user:u};
-}
-function logout(){localStorage.removeItem(STORAGE.CURRENT);} 
-function currentUser(){return load(STORAGE.CURRENT,null)}
-
-// Posts management
-function initPosts(){
-  if(load(STORAGE.POSTS)) return; // keep existing
-  fetch(API_URL).then(r=>r.json()).then(data=>{
-    const posts = data.map((img,i)=>({
-      id:`p_${img.id}_${i}`,
-      imgId:img.id,
-      url:`https://picsum.photos/id/${img.id}/800/800`,
-      author: img.author,
-      avatar:`https://i.pravatar.cc/80?u=${encodeURIComponent(img.author)}`,
-      caption:`Photo by ${img.author}`,
-      tags: randomTags(),
-      likes:[],
-      comments:[]
-    }));
-    save(STORAGE.POSTS,posts);
-    renderFeed();
-  }).catch(err=>{
-    showAlert('Failed to fetch images, try again later','is-danger');
-  });
-}
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function randomTags(){
   const shuffled = sampleTags.sort(()=>0.5-Math.random());
@@ -67,15 +22,54 @@ function randomTags(){
   return shuffled.slice(0,count);
 }
 
-function renderFeed(filter=''){
-  const feed = $('#feed');
-  const posts = load(STORAGE.POSTS,[]);
-  const user = currentUser();
-  const q = filter.trim().toLowerCase();
-  let filtered = posts;
-  if(q){
-    filtered = posts.filter(p=> p.caption.toLowerCase().includes(q) || p.tags.some(t=>t.toLowerCase().includes(q)) );
+async function fetchCurrentAccount(){
+  try{
+    const res = await fetch('/allcompte');
+    if(!res.ok) throw new Error('Failed to fetch comptes');
+    const comptes = await res.json();
+    if(Array.isArray(comptes) && comptes.length>0){
+      currentAccount = comptes[0];
+    } else {
+      currentAccount = null;
+    }
+  }catch(err){
+    console.error('fetchCurrentAccount error', err);
+    currentAccount = null;
   }
+  renderUserInfo();
+}
+
+async function fetchPostsFromServer(){
+  try{
+    const res = await fetch('/allPost');
+    if(!res.ok) throw new Error('Failed to fetch posts from server');
+    const serverPosts = await res.json();
+    latestPosts = (serverPosts || []).map(p=>({
+      id: p.id,
+      url: p.url,
+      author: p.author,
+      avatar: p.avatar || (`https://i.pravatar.cc/80?u=${encodeURIComponent(p.author)}`),
+      caption: p.caption || '',
+      tags: p.tags || [],
+      likes: p.likes || [],
+      comments: (p.comments||[]).map(c=>({ user: c.user, text: c.text }))
+    }));
+    renderFeed(latestPosts);
+  }catch(err){
+    console.error('fetchPostsFromServer error', err);
+    showAlert('Impossible de charger les posts depuis le serveur','is-danger');
+  }
+}
+
+function renderFeed(posts, filter=''){
+  const feed = $('#feed');
+  const user = currentAccount;
+  const q = (filter||'').trim().toLowerCase();
+  let filtered = posts || [];
+  if(q){
+    filtered = filtered.filter(p=> (p.caption||'').toLowerCase().includes(q) || (p.tags||[]).some(t=>t.toLowerCase().includes(q)) );
+  }
+  if(!feed) return;
   feed.innerHTML = '';
   filtered.forEach(post=>{
     const wrapper = document.createElement('div');
@@ -84,24 +78,23 @@ function renderFeed(filter=''){
     feed.appendChild(wrapper);
   });
   attachPostHandlers();
-  renderUserInfo();
 }
 
 function renderPostCard(post,user){
-  const liked = user && post.likes.includes(user.username);
+  const liked = user && post.likes && post.likes.includes(user.name);
   return `
   <div class="card post-card" data-id="${post.id}">
     <div class="card-header">
       <div class="card-header-title">
         <div class="post-meta">
           <figure class="image is-32x32"><img src="${post.avatar}"/></figure>
-          <strong>${post.author}</strong>
+          <strong>${escapeHtml(post.author)}</strong>
         </div>
       </div>
     </div>
     <div class="card-image">
       <figure class="image is-4by3">
-        <img src="${post.url}" alt="${post.caption}">
+        <img src="${post.url}" alt="${escapeHtml(post.caption)}">
       </figure>
     </div>
     <div class="card-content">
@@ -111,11 +104,11 @@ function renderPostCard(post,user){
           <button class="button comment-open" data-id="${post.id}"><span class="icon"><i class="fas fa-comment"></i></span></button>
           <button class="button share-btn" data-id="${post.id}"><span class="icon"><i class="fas fa-share"></i></span></button>
         </div>
-        <div class="likes"><strong>${post.likes.length}</strong> likes</div>
-        <div class="caption">${post.caption}</div>
-        <div class="hashtags">${post.tags.map(t=>`<span class="tag hashtag" data-tag="${t}">${t}</span>`).join(' ')}</div>
+        <div class="likes"><strong>${post.likes?post.likes.length:0}</strong> likes</div>
+        <div class="caption">${escapeHtml(post.caption)}</div>
+        <div class="hashtags">${(post.tags||[]).map(t=>`<span class="tag hashtag" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join(' ')}</div>
         <div class="show-more-wrap"><button class="show-more-btn" data-id="${post.id}">Show more</button></div>
-        <div class="comments" id="c_${post.id}">${post.comments.map(c=>`<div class="comment"><strong>${c.user}:</strong> ${escapeHtml(c.text)}</div>`).join('')}</div>
+        <div class="comments" id="c_${post.id}">${(post.comments||[]).map(c=>`<div class="comment"><strong>${escapeHtml(c.user)}:</strong> ${escapeHtml(c.text)}</div>`).join('')}</div>
         <div class="pt-3">
           <div class="field has-addons">
             <div class="control is-expanded"><input class="input comment-input" placeholder="Add a comment..." data-id="${post.id}"/></div>
@@ -127,13 +120,11 @@ function renderPostCard(post,user){
   </div>`;
 }
 
-function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
 function attachPostHandlers(){
   $all('.like-btn').forEach(b=>b.onclick=()=>toggleLike(b.dataset.id));
   $all('.comment-submit').forEach(b=>b.onclick=()=>submitComment(b.dataset.id));
   $all('.comment-open').forEach(b=>{b.onclick=()=>{const el=document.querySelector(`#c_${b.dataset.id}`);el && el.scrollIntoView({behavior:'smooth',block:'center'});} });
-  $all('.hashtag').forEach(h=>h.onclick=()=>{ $('#searchInput').value = h.dataset.tag; renderFeed(h.dataset.tag); });
+  $all('.hashtag').forEach(h=>h.onclick=()=>{ $('#searchInput').value = h.dataset.tag; renderFeed(latestPosts,h.dataset.tag); });
   $all('.share-btn').forEach(b=>b.onclick=()=>sharePost(b.dataset.id));
   $all('.show-more-btn').forEach(btn=>btn.onclick=()=>{
     const id = btn.dataset.id;
@@ -146,131 +137,101 @@ function attachPostHandlers(){
   });
 }
 
-function toggleLike(postId){
-  const user = currentUser();
-  if(!user){showAlert('Login to like posts','is-warning'); return}
-  const posts = load(STORAGE.POSTS,[]);
-  const p = posts.find(x=>x.id===postId); if(!p) return;
-  const idx = p.likes.indexOf(user.username);
-  if(idx>=0) p.likes.splice(idx,1); else p.likes.push(user.username);
-  save(STORAGE.POSTS,posts); renderFeed($('#searchInput').value||'');
+async function toggleLike(postId){
+  if(!currentAccount){ showAlert('No account available to like posts','is-warning'); return }
+  try{
+    const res = await fetch(`/toggleLike/${encodeURIComponent(postId)}`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id_compte: currentAccount.id })
+    });
+    if(!res.ok) throw new Error('Erreur like');
+    await fetchPostsFromServer();
+  }catch(err){
+    console.error('toggleLike error', err);
+    showAlert('Impossible de liker pour le moment','is-danger');
+  }
 }
 
-function submitComment(postId){
-  const user = currentUser();
-  if(!user){showAlert('Login to comment','is-warning'); return}
+async function submitComment(postId){
+  if(!currentAccount){ showAlert('No account available to comment','is-warning'); return }
   const input = document.querySelector(`.comment-input[data-id="${postId}"]`);
   if(!input) return;
   const text = input.value.trim(); if(!text) return;
-  const posts = load(STORAGE.POSTS,[]);
-  const p = posts.find(x=>x.id===postId); if(!p) return;
-  p.comments.push({user:user.username,text});
-  save(STORAGE.POSTS,posts); input.value=''; renderFeed($('#searchInput').value||'');
+  try{
+    const res = await fetch(`/addCommentaire/${encodeURIComponent(postId)}`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id_compte: currentAccount.id, commentaire: text })
+    });
+    if(!res.ok) throw new Error('Erreur commentaire');
+    input.value='';
+    await fetchPostsFromServer();
+  }catch(err){
+    console.error('submitComment error', err);
+    showAlert("Impossible d'envoyer le commentaire",'is-danger');
+  }
 }
 
 function sharePost(postId){
-  const posts = load(STORAGE.POSTS,[]);
-  const p = posts.find(x=>x.id===postId); if(!p) return;
+  const p = latestPosts.find(x=>x.id===postId); if(!p) return;
   const url = p.url;
-  if(navigator.share){navigator.share({title:p.caption,text:p.tags.join(' '),url}).then(()=>showAlert('Shared'))}else{
+  if(navigator.share){navigator.share({title:p.caption,text:(p.tags||[]).join(' '),url}).then(()=>showAlert('Shared'))}else{
     navigator.clipboard.writeText(url).then(()=>showAlert('Image link copied to clipboard'))
   }
 }
 
-// UI wiring
 function renderUserInfo(){
-  // Always show static profile name and avatar per request
   const profileNav = $('#profileNav');
-  profileNav.innerHTML = `<figure class="image is-40x40"><img src="https://i.pravatar.cc/40?u=lina_nour" alt="lina nour"/></figure><div class="profile-info"><strong>lina nour</strong></div>`;
-  // hide new-post for this simplified demo
-  $all('.is-logged-out').forEach(el => el.classList.add('is-hidden'));
-  if($('#menuNewPost')) $('#menuNewPost').classList.add('is-hidden');
+  if(!profileNav) return;
+  if(currentAccount){
+    profileNav.innerHTML = `<figure class="image is-40x40"><img src="https://i.pravatar.cc/40?u=${encodeURIComponent(currentAccount.name)}" alt="${escapeHtml(currentAccount.name)}"/></figure><div class="profile-info"><strong>${escapeHtml(currentAccount.name)}</strong></div>`;
+  } else {
+    profileNav.innerHTML = `<div class="profile-info"><strong>Guest</strong></div>`;
+  }
 }
 
 function setupDom(){
-  // modals
-  function openModal(sel){document.querySelector(sel).classList.add('is-active')}
-  function closeModal(sel){document.querySelector(sel).classList.remove('is-active')}
-  function wireModal(id, openBtn, submitBtn){
-    const btn = $(openBtn);
-    if(btn) btn.onclick = ()=>openModal(id);
-    $all(`${id} .delete, ${id} .cancel, ${id} .modal-background`).forEach(el=>el.onclick=()=>closeModal(id));
-  }
-  wireModal('#modalSignup','#btnSignup','#submitSignup');
-  wireModal('#modalLogin','#btnLogin','#submitLogin');
+  
 
-  // signup
-  $('#submitSignup').onclick = ()=>{
-    const u = $('#suUsername').value.trim(); const p = $('#suPassword').value;
-    const res = signup(u,p);
-    showAlert(res.msg, res.ok? 'is-success':'is-danger');
-    if(res.ok){ closeModal('#modalSignup'); $('#suUsername').value=''; $('#suPassword').value=''; }
-  };
-  // login
-  $('#submitLogin').onclick = ()=>{
-    const u = $('#liUsername').value.trim(); const p = $('#liPassword').value;
-    const res = login(u,p);
-    showAlert(res.msg, res.ok? 'is-success':'is-danger');
-    if(res.ok){ closeModal('#modalLogin'); $('#liUsername').value=''; $('#liPassword').value=''; renderFeed($('#searchInput').value||''); }
-  };
-
-  // sidebar menu
-  $all('.menu-list a').forEach(a => a.onclick = (e)=>{
+  $all('.menu-list a').forEach(a => a.onclick = async (e)=>{
     e.preventDefault();
     $all('.menu-list a').forEach(x => x.classList.remove('is-active'));
     a.classList.add('is-active');
     const id = a.id;
-    if(id === 'menuHome') renderFeed('');
+    if(id === 'menuHome') renderFeed(latestPosts,'');
     else if(id === 'menuDiscover') showAlert('Feature coming soon','is-info');
-    else if(id === 'menuSearch'){ const q = prompt('Search posts:'); if(q) renderFeed(q); }
+    else if(id === 'menuSearch'){ const q = prompt('Search posts:'); if(q) renderFeed(latestPosts,q); }
     else if(id === 'menuNewPost'){
       const url = prompt('Enter image URL:');
       if(url){
-        const user = currentUser();
-        if(!user) return;
-        const posts = load(STORAGE.POSTS,[]);
-        posts.unshift({
-          id:`p_${Date.now()}`,
-          imgId:Date.now(),
-          url,
-          author: user.username,
-          avatar: user.avatar,
-          caption: prompt('Add a caption:') || '',
-          tags: randomTags(),
-          likes:[],
-          comments:[]
-        });
-        save(STORAGE.POSTS,posts);
-        renderFeed('');
-        showAlert('Post created!','is-success');
+        if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
+        const caption = prompt('Add a caption:') || '';
+        fetch('/addPost', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ image: url, id_compte: currentAccount.id }) })
+        .then(r=>{
+          if(!r.ok) throw new Error('Failed to create post');
+          showAlert('Post created!','is-success');
+          return fetchPostsFromServer();
+        }).catch(err=>{ console.error('addPost error',err); showAlert('Impossible de créer le post','is-danger'); });
       }
     }
     else if(id === 'menuSettings') showAlert('Settings feature coming soon','is-info');
   });
 
   // search
-  $('#searchInput').addEventListener('keyup',e=>{ if(e.key==='Enter'){ renderFeed($('#searchInput').value||''); } });
+  const search = $('#searchInput'); if(search) search.addEventListener('keyup',e=>{ if(e.key==='Enter'){ renderFeed(latestPosts, $('#searchInput').value||''); } });
 
-  // profileNav click behaviour: open login modal if not logged
+  // info sur le compte 
   const profileNav = $('#profileNav');
   if(profileNav){
     profileNav.onclick = ()=>{
-      const u = currentUser();
-      if(!u){
-        // open login modal
-        const modal = document.querySelector('#modalLogin'); if(modal) modal.classList.add('is-active');
-      } else {
-        // if logged, clicking avatar toggles logout link focus
-        const logout = $('#btnLogout'); if(logout) logout.scrollIntoView({behavior:'smooth',block:'center'});
-      }
+      if(!currentAccount){ showAlert('No account selected from server','is-info'); }
+      else showAlert(`Logged as ${currentAccount.name}`,'is-info');
     };
   }
 }
 
 // init
-document.addEventListener('DOMContentLoaded',()=>{
-  initUsers();
+document.addEventListener('DOMContentLoaded',async ()=>{
+  await fetchCurrentAccount();
   setupDom();
-  const posts = load(STORAGE.POSTS);
-  if(!posts) initPosts(); else renderFeed();
+  await fetchPostsFromServer();
 });

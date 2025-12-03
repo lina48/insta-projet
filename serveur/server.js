@@ -14,6 +14,7 @@ const express = require('express');
 const path = require('path');
 
 const {db, createTable} = require('./db')
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 3000;
@@ -54,11 +55,70 @@ app.post('/addPost', async (req, res) => {
 // Récuperation des posts
 app.get('/allPost', async (req, res) => {
     try {
-        const posts = await db("posts").select("*").orderBy("created_at", "desc");
-        res.status(200).json(posts)
+        // Récupère tous les posts puis enrichit avec info compte, likes et commentaires
+        const rawPosts = await db('posts').select('*').orderBy('created_at', 'desc');
+
+        const posts = await Promise.all(rawPosts.map(async (p) => {
+            // récupère le compte auteur
+            const compte = await db('comptes').where({ id: p.id_compte }).first();
+            const author = compte ? compte.name : 'unknown';
+            const avatar = `https://i.pravatar.cc/80?u=${encodeURIComponent(author)}`;
+
+            // récupère les likes (liste des comptes qui ont liké)
+            const likesRows = await db('likes').where({ id_post: p.id }).select('id_compte');
+            const likes = await Promise.all(likesRows.map(async (lr) => {
+                const c = await db('comptes').where({ id: lr.id_compte }).first();
+                return c ? c.name : lr.id_compte;
+            }));
+
+            // récupère les commentaires
+            const commentairesRows = await db('commentaires').where({ id_post: p.id }).orderBy('created_at','asc');
+            const comments = await Promise.all(commentairesRows.map(async (cmt) => {
+                const c = await db('comptes').where({ id: cmt.id_compte }).first();
+                return { user: c ? c.name : cmt.id_compte, text: cmt.commentaire };
+            }));
+
+            return {
+                id: p.id,
+                url: p.image,
+                author,
+                avatar,
+                caption: `Photo by ${author}`,
+                tags: [],
+                likes,
+                comments
+            };
+        }));
+
+        res.status(200).json(posts);
     } catch(err){
-        console.error("Erreur /allPost", err);
-        res.status(500).json({error: "Erreur serveur.." })
+        console.error('Erreur /allPost', err);
+        res.status(500).json({error: 'Erreur serveur..' })
+    }
+});
+
+// Toggle like: if user already liked -> remove, else add
+app.post('/toggleLike/:id', async (req, res) => {
+    try {
+        const id_post = req.params.id;
+        const { id_compte } = req.body;
+        if(!id_compte) return res.status(400).json({ error: 'id_compte requis' });
+
+        const like = await db('likes').where({ id_post, id_compte }).first();
+        if(like){
+            // delete
+            await db('likes').where({ id_post, id_compte }).del();
+            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
+            return res.status(200).json({ liked: false, likesCount: count.nb });
+        } else {
+            const newLike = { id: crypto.randomUUID(), id_post, id_compte };
+            await db('likes').insert(newLike);
+            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
+            return res.status(201).json({ liked: true, likesCount: count.nb });
+        }
+    } catch(err){
+        console.error('Erreur /toggleLike/:id', err);
+        res.status(500).json({ error: 'Erreur serveur..' });
     }
 });
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
