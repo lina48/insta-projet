@@ -33,7 +33,7 @@ async function createTable(){
              table.string("image").notNullable();
              table.decimal("id_compte").notNullable()
                   .references("id").inTable("comptes")
-                  .onDelete("CASCADE")
+                  .onDelete("CASCADE");
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
     }
@@ -45,10 +45,10 @@ async function createTable(){
              table.string("id").primary();
              table.string("id_post").notNullable()
                   .references("id").inTable("posts")
-                  .onDelete("CASCADE")
+                  .onDelete("CASCADE");
              table.string("id_compte").notNullable()
                   .references("id").inTable("comptes")
-                  .onDelete("CASCADE")
+                  .onDelete("CASCADE");
              table.string("commentaire").notNullable();
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
@@ -61,11 +61,12 @@ async function createTable(){
              table.string("id").primary();
              table.string("id_post").notNullable()
                   .references("id").inTable("posts")
-                  .onDelete("CASCADE")
+                  .onDelete("CASCADE");
              table.string("id_compte").notNullable()
                   .references("id").inTable("comptes")
-                  .onDelete("CASCADE")
+                  .onDelete("CASCADE");
              table.timestamp("created_at").defaultTo(db.fn.now());
+             table.unique(["id_compte", "id_post"]); // Empêche de liker 2 fois
        });
     }
 }
