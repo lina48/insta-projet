@@ -234,17 +234,6 @@ app.get('/allCommentaireByPost/:id', async (req, res) => {
         res.status(500).json({ error: "Erreur serveur.." })
     }
 });
-
-// Récuperation des commenttaires pour un post
-app.get('/commentaireByPost/:id_post', async (req, res) => {
-    try {
-        const id_post = req.params.id_post;
-        const commentaire = await db("commentaires").where({ id_post }).select("commentaire")
-    } catch(err) {
-        console.error("Erreur /commentaireByPost/:id_post", err);
-        res.status(500).json({ error: "Erreur serveur.." })
-    }
-})
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 // Ajout d'un compte
 app.post('/addcompte', async (req, res) => {
