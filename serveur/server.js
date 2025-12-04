@@ -1,9 +1,4 @@
 /*
-Le backend a 2 routes pour les posts : add et all.
-2 routes pour les commentaires : add et all.
-2 routes pour les comptes : add et all.
-Et 3 routes pour les likes : add, all et delete.
-
 La table commentaire contient l’ID du post et l’ID du compte qui l’a écrit.
 
 La table likes contient l’ID du post et l’ID du compte qui a liké.
@@ -27,18 +22,19 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "../client", "index.html"));
 });
 
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 // Ajout d'un post
 app.post('/addPost', async (req, res) => {
     try {
         const { image, id_compte } = req.body;
 
-        // 1️⃣ Vérifier si le compte existe
+        // Vérifier si le compte existe
         const compte = await db("comptes").where({ id: id_compte }).first();
         if (!compte) {
             return res.status(400).json({ error: "id_compte n'existe pas" });
         }
 
-        // 2️⃣ Création du post
+        // Création du post
         const post = {
         id: crypto.randomUUID(),
         image: String(image || "https://picsum.photos/400/280?random=" + Math.floor(Math.random()* 1000)),
@@ -97,30 +93,6 @@ app.get('/allPost', async (req, res) => {
     }
 });
 
-// Toggle like: if user already liked -> remove, else add
-app.post('/toggleLike/:id', async (req, res) => {
-    try {
-        const id_post = req.params.id;
-        const { id_compte } = req.body;
-        if(!id_compte) return res.status(400).json({ error: 'id_compte requis' });
-
-        const like = await db('likes').where({ id_post, id_compte }).first();
-        if(like){
-            // delete
-            await db('likes').where({ id_post, id_compte }).del();
-            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
-            return res.status(200).json({ liked: false, likesCount: count.nb });
-        } else {
-            const newLike = { id: crypto.randomUUID(), id_post, id_compte };
-            await db('likes').insert(newLike);
-            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
-            return res.status(201).json({ liked: true, likesCount: count.nb });
-        }
-    } catch(err){
-        console.error('Erreur /toggleLike/:id', err);
-        res.status(500).json({ error: 'Erreur serveur..' });
-    }
-});
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 // Ajout d'un like
 app.post('/addLike/:id', async (req, res) => {
@@ -135,19 +107,19 @@ app.post('/addLike/:id', async (req, res) => {
             return res.status(400).json({ error: "Déjà liké" });
         }
 
-        // 1️⃣ Vérifier si le compte existe
+        // Vérifier si le compte existe
         const compte = await db("comptes").where({ id: id_compte }).first();
         if (!compte) {
             return res.status(400).json({ error: "id_compte n'existe pas" });
         }
 
-        // 2️⃣ Vérifier si le post existe
+        // Vérifier si le post existe
         const post = await db("posts").where({ id: id_post }).first();
         if (!post) {
             return res.status(400).json({ error: "id_post n'existe pas" });
         }
 
-        // 3️⃣ Création du like
+        // Création du like
         const like = {
             id: crypto.randomUUID(),
             id_post,
@@ -190,6 +162,32 @@ app.delete("/deletelike/:id", async(req, res) => {
         res.status(500).json({error: "Erreur serveur.."})
     }
 })
+
+// Toggle like: if user already liked -> remove, else add
+app.post('/toggleLike/:id', async (req, res) => {
+    try {
+        const id_post = req.params.id;
+        const { id_compte } = req.body;
+        if(!id_compte) return res.status(400).json({ error: 'id_compte requis' });
+
+        const like = await db('likes').where({ id_post, id_compte }).first();
+        if(like){
+            // delete
+            await db('likes').where({ id_post, id_compte }).del();
+            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
+            return res.status(200).json({ liked: false, likesCount: count.nb });
+        } else {
+            const newLike = { id: crypto.randomUUID(), id_post, id_compte };
+            await db('likes').insert(newLike);
+            const count = await db('likes').where({ id_post }).count({ nb: '*' }).first();
+            return res.status(201).json({ liked: true, likesCount: count.nb });
+        }
+    } catch(err){
+        console.error('Erreur /toggleLike/:id', err);
+        res.status(500).json({ error: 'Erreur serveur..' });
+    }
+});
+
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 // Ajout d'un commentaire
 app.post('/addCommentaire/:id', async (req, res) => {
@@ -197,19 +195,19 @@ app.post('/addCommentaire/:id', async (req, res) => {
         const id_post = req.params.id;
         const { id_compte, commentaire } = req.body;
 
-        // 1️⃣ Vérifier si le compte existe
+        // Vérifier si le compte existe
         const compte = await db("comptes").where({ id: id_compte }).first();
         if (!compte) {
             return res.status(400).json({ error: "id_compte n'existe pas" });
         }
 
-        // 2️⃣ Vérifier si le post existe
+        // Vérifier si le post existe
         const post = await db("posts").where({ id: id_post }).first();
         if (!post) {
             return res.status(400).json({ error: "id_post n'existe pas" });
         }
 
-        // 3️⃣ Création du commentaire
+        // Création du commentaire
         const commentaire_tmp = {
             id: crypto.randomUUID(),
             id_post,
@@ -225,7 +223,7 @@ app.post('/addCommentaire/:id', async (req, res) => {
     }
 });
 
-// Récuperation des commentaires
+// Récuperation de la table "commentaires" pour un post
 app.get('/allCommentaireByPost/:id', async (req, res) => {
     try {
         const id_post = req.params.id;
@@ -236,6 +234,17 @@ app.get('/allCommentaireByPost/:id', async (req, res) => {
         res.status(500).json({ error: "Erreur serveur.." })
     }
 });
+
+// Récuperation des commenttaires pour un post
+app.get('/commentaireByPost/:id_post', async (req, res) => {
+    try {
+        const id_post = req.params.id_post;
+        const commentaire = await db("commentaires").where({ id_post }).select("commentaire")
+    } catch(err) {
+        console.error("Erreur /commentaireByPost/:id_post", err);
+        res.status(500).json({ error: "Erreur serveur.." })
+    }
+})
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 // Ajout d'un compte
 app.post('/addcompte', async (req, res) => {
