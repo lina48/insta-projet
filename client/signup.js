@@ -4,6 +4,9 @@ const passwordInput = document.getElementById('password');
 const createButton = document.getElementById('enterBtn');
 const feedbackEl = document.getElementById('passwordFeedback');
 const form = document.querySelector('form.box');
+const formEmail = document.getElementById("email");
+const formName = document.getElementById("name");
+
 
 let attemptedSubmit = false; //pour que les requirements ne s'affichent pas au première essai.
 
@@ -63,8 +66,30 @@ function interceptIfInvalid(event) {
 }
 
 if (form) { //N'execute pas la commande du bouton si les password ne sont pas based
-  form.addEventListener('submit', function (event) {
+  // Ajout du compte dans la base de données
+  form.addEventListener('submit', async(event) => {
     interceptIfInvalid(event);
+    event.preventDefault();
+
+    const name = formName.value;
+    const email = formEmail.value;
+    const mdp = passwordInput.value;
+
+    try {
+      const res = await fetch(`/addcompte`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, mdp })
+      })
+
+      if (!res.ok) {
+        const data = await res.json();
+        return console.error("Erreur :", data.error);
+      }
+    } catch (err) {
+      console.error("Erreur fetch :", err);
+    }
+
   });
 } else if (createButton) {
   createButton.addEventListener('click', function (event) {
@@ -87,3 +112,4 @@ function handleImageClick(event) {
 document.querySelectorAll('img[data-description]').forEach(img => {
   img.addEventListener('click', handleImageClick);
 });
+
