@@ -66,6 +66,7 @@ function interceptIfInvalid(event) {
 }
 
 if (form) { //N'execute pas la commande du bouton si les password ne sont pas based
+<<<<<<< HEAD
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
     console.log('Form submitted!');
@@ -120,6 +121,32 @@ if (form) { //N'execute pas la commande du bouton si les password ne sont pas ba
       console.error('Erreur signup:', err);
       alert('Impossible de créer le compte. Veuillez réessayer.');
     }
+=======
+  // Ajout du compte dans la base de données
+  form.addEventListener('submit', async(event) => {
+    interceptIfInvalid(event);
+    event.preventDefault();
+
+    const name = formName.value;
+    const email = formEmail.value;
+    const mdp = passwordInput.value;
+
+    try {
+      const res = await fetch(`/addcompte`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, mdp })
+      })
+
+      if (!res.ok) {
+        const data = await res.json();
+        return console.error("Erreur :", data.error);
+      }
+    } catch (err) {
+      console.error("Erreur fetch :", err);
+    }
+
+>>>>>>> 8b88a224eae15f8451e24963d96dfb6f57bfc5c9
   });
 } else if (createButton) {
   createButton.addEventListener('click', function (event) {
