@@ -52,6 +52,14 @@ body {
     text-align: center;
 }
 
+.smallTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color:#4a4a4a;
+}
+
 /* Ajouter un filtre flou derrière le container */
 .login-container {
     width: 350px;

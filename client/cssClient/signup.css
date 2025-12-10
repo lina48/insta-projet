@@ -1,0 +1,149 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: url('nuitv1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center; /* centre horizontalement */
+    align-items: center;     /* centre verticalement */
+    min-height: 100vh;       /* s’assure que body prend toute la hauteur */
+    background-color:#180a13;
+    background-image: url('https://cdna.artstation.com/p/assets/images/images/047/160/908/original/pxsprite-space.gif?1646911392');
+}
+
+.bigTitle {
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    
+}
+
+.bigTitle.gradient {
+    background: linear-gradient(45deg, #940051, #003598);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.control {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+
+.smallTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    /* gradient:*/
+}
+
+.label {
+    color:#ffffff;
+}
+
+.line {
+  border-bottom: 1px solid rgb(32, 32, 32); /* Sets a 1px solid black line at the bottom */
+  width: 100%; /* Makes the line span the full width of its parent */
+  margin: 10px 0; /* Adds some spacing above and below the line */
+}
+
+
+/* Ajouter un filtre flou derrière le container */
+.box {
+    width: 400px;
+    padding: 20px 20px;
+    background-color:  #0b0a0b; /* plus translucide */
+    backdrop-filter: blur(12px);                 /* flou plus prononcé */
+    border-radius: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);   /* ombre plus douce et diffuse */
+    border: 1px solid rgba(72, 6, 31, 0.3);    /* petite bordure floue */
+}
+
+/* Texte logo Instagram */
+.logo-text {
+    font-family: 'Pacifico', cursive; /* style manuscrit comme Instagram */
+    font-size: 48px;
+    color: #ffffff; /* blanc, change selon ton thème sombre */
+    margin-bottom: 20px;
+    padding-bottom: 50px;
+}
+
+
+/* Pour ajouter un effet de dégradé type Instagram */
+.logo-text.gradient {
+    background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* Bouton connexion */
+.createButton {
+    background-color: #140097 !important;
+    color: white !important;
+    border-radius: 10px;
+    display: inline-block !important;
+    padding: 10px 50px !important;
+    text-decoration: none !important;
+    border: 1px solid rgba(24, 6, 72, 0.3) !important;
+    font-size: 16px !important;
+    font-style: bold !important;
+}
+
+.createButton:hover {
+    background-color: #130061 !important;
+}
+
+
+/* Lien mot de passe oublié */
+.already-account {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #8a0c9b;
+    cursor: pointer;
+    display: inline-block; /* allow background-clip on the text */
+}
+
+/* removed invalid color: linear-gradient(...) and replace with proper gradient text */
+.already-account.gradient {
+    background: linear-gradient(45deg, #940051, #003598);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    transition: background 0.25s ease;
+}
+
+/* keep underline on hover and ensure gradient applies on hover/focus */
+.already-account:hover,
+.already-account:focus {
+    text-decoration: underline;
+}
+
+/* if you want the gradient to appear on hover even when .gradient class isn't present */
+.already-account:hover,
+.already-account:focus,
+.already-account.gradient:hover,
+.already-account.gradient:focus {
+    background: linear-gradient(45deg, #800046, #002b7b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Inputs */
+.input {
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    background-color: #1d171a;
+    border: 1px solid #4a4a4a;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 6px;
+    text-emphasis-color: #ffffff;
+}
