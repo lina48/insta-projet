@@ -254,6 +254,43 @@ app.post('/addcompte', async (req, res) => {
         res.status(500).json({error: "Erreur serveur.." })
     }
 });
+// connexion au compte
+app.post('/login', async (req, res) => {
+    try {
+        const { email, name, mdp } = req.body;
+
+        if ((!email && !name) || !mdp) {
+            return res.status(400).json({ error: "Email ou nom et mot de passe requis" });
+        }
+
+        // Chercher le compte par email OU nom
+        const compte = await db("comptes")
+            .where(builder => {
+                if(email) builder.orWhere({ email });
+                if(name) builder.orWhere({ name });
+            })
+            .first();
+
+        if (!compte) {
+            return res.status(401).json({ error: "Compte introuvable" });
+        }
+
+        if (compte.mdp !== mdp) {
+            return res.status(401).json({ error: "Mot de passe incorrect" });
+        }
+
+        // Tout est OK  renvoyer le compte
+        res.status(200).json({
+            id: compte.id,
+            name: compte.name,
+            email: compte.email
+        });
+
+    } catch (err) {
+        console.error("Erreur /login", err);
+        res.status(500).json({ error: "Erreur serveur.." });
+    }
+});
 
 // Récuperation des commentaires
 app.get('/allcompte', async (req, res) => {

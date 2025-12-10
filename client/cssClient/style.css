@@ -1,28 +1,30 @@
 /* Image de fond floue */
 
 body {
-    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: flex-end; /* décalage à droite */
+    align-items: center;       /* centré verticalement */
+    min-height: 100vh;
     background: url('../Image/nuitv1.jpg') no-repeat center center fixed;
     background-size: cover;
-    display: flex;
-    justify-content: center; /* centre horizontalement */
-    align-items: center;     /* centre verticalement */
-    min-height: 100vh;       /* s’assure que body prend toute la hauteur */
+    justify-content: flex-end;
+    padding-right: 200px; /* espace du bord droit */
 }
 /* Ajouter un filtre flou derrière le container */
 .login-container {
     width: 350px;
     padding: 40px 30px;
-    background-color: rgba(255, 255, 255, 0.2); /* plus translucide */
-    backdrop-filter: blur(12px);                 /* flou plus prononcé */
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
     border-radius: 12px;
     text-align: center;
-    box-sizing: border-box;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.3);
     color: #ffffff;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);   /* ombre plus douce et diffuse */
-    border: 1px solid rgba(255,255,255,0.3);    /* petite bordure floue */
-}
 
+    /* Décalage à droite */
+    margin-left: 50px; /* tu peux ajuster */
+}
 /* Texte logo Instagram */
 .logo-text {
     font-family: 'Pacifico', cursive; /* style manuscrit comme Instagram */
@@ -68,4 +70,22 @@ body {
 .input {
     margin-bottom: 10px;
     box-sizing: border-box;
+}
+
+.signup-text {
+    margin-top: 15px;
+    font-size: 12px;
+    color:#8a0c9b;
+    cursor: default;
+}
+
+.signup-text a {
+    color: #405de6;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.signup-text a:hover {
+    color: #833ab4;
 }
