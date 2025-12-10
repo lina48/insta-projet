@@ -4,6 +4,9 @@ const passwordInput = document.getElementById('password');
 const createButton = document.getElementById('enterBtn');
 const feedbackEl = document.getElementById('passwordFeedback');
 const form = document.querySelector('form.box');
+const formEmail = document.getElementById("email");
+const formName = document.getElementById("name");
+
 
 let attemptedSubmit = false; //pour que les requirements ne s'affichent pas au première essai.
 
@@ -139,3 +142,4 @@ function handleImageClick(event) {
 document.querySelectorAll('img[data-description]').forEach(img => {
   img.addEventListener('click', handleImageClick);
 });
+
