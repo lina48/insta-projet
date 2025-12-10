@@ -46,7 +46,7 @@ async function login(event){
         });
 
         const data = await res.json();
-
+        console.log("Donnée récupérer")
         if(res.ok){
             // Stocke le compte complet dans localStorage
             localStorage.setItem('currentAccount', JSON.stringify(data));

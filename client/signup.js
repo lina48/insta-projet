@@ -3,9 +3,7 @@
 const passwordInput = document.getElementById('password');
 const createButton = document.getElementById('enterBtn');
 const feedbackEl = document.getElementById('passwordFeedback');
-const form = document.querySelector('form.box');
-const formEmail = document.getElementById("email");
-const formName = document.getElementById("name");
+const form = document.getElementById("signupForm")
 
 
 let attemptedSubmit = false; //pour que les requirements ne s'affichent pas au première essai.
@@ -66,7 +64,6 @@ function interceptIfInvalid(event) {
 }
 
 if (form) { //N'execute pas la commande du bouton si les password ne sont pas based
-<<<<<<< HEAD
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
     console.log('Form submitted!');
@@ -77,6 +74,7 @@ if (form) { //N'execute pas la commande du bouton si les password ne sont pas ba
     }
     
     // Récupérer les valeurs du formulaire
+    const id = crypto.randomUUID();
     const email = document.getElementById('email').value.trim();
     const name = document.getElementById('name').value.trim();
     const mdp = passwordInput.value.trim();
@@ -94,7 +92,7 @@ if (form) { //N'execute pas la commande du bouton si les password ne sont pas ba
       const res = await fetch('/addcompte', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, mdp })
+        body: JSON.stringify({ id, name, email, mdp })
       });
       
       console.log('Response status:', res.status);
@@ -110,7 +108,7 @@ if (form) { //N'execute pas la commande du bouton si les password ne sont pas ba
       console.log('Account created:', newAccount);
       
       // Stocker le compte dans localStorage
-      localStorage.setItem('currentAccount', JSON.stringify(newAccount));
+      //localStorage.setItem('currentAccount', JSON.stringify(newAccount));
       console.log('Account stored in localStorage');
       
       // Rediriger vers index.html
@@ -121,32 +119,6 @@ if (form) { //N'execute pas la commande du bouton si les password ne sont pas ba
       console.error('Erreur signup:', err);
       alert('Impossible de créer le compte. Veuillez réessayer.');
     }
-=======
-  // Ajout du compte dans la base de données
-  form.addEventListener('submit', async(event) => {
-    interceptIfInvalid(event);
-    event.preventDefault();
-
-    const name = formName.value;
-    const email = formEmail.value;
-    const mdp = passwordInput.value;
-
-    try {
-      const res = await fetch(`/addcompte`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, mdp })
-      })
-
-      if (!res.ok) {
-        const data = await res.json();
-        return console.error("Erreur :", data.error);
-      }
-    } catch (err) {
-      console.error("Erreur fetch :", err);
-    }
-
->>>>>>> 8b88a224eae15f8451e24963d96dfb6f57bfc5c9
   });
 } else if (createButton) {
   createButton.addEventListener('click', function (event) {

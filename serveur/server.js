@@ -269,10 +269,10 @@ app.get('/allCommentaireByPost/:id', async (req, res) => {
 // Ajout d'un compte
 app.post('/addcompte', async (req, res) => {
     try {
-        const { name, email, mdp } = req.body;
+        const { id, name, email, mdp } = req.body;
 
         const compte = {
-            id: crypto.randomUUID(),
+            id,
             name,
             email,
             mdp

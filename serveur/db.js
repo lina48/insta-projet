@@ -19,19 +19,11 @@ async function createTable(){
        await db.schema.createTable("comptes", (table)=>{
              table.string("id").primary();
              table.string("name").notNullable();
-             table.decimal("email").notNullable();
+             table.string("email").notNullable();
              table.string("mdp").notNullable();
              table.string("avatar");
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
-    } else {
-        // Add avatar column if it doesn't exist (migration)
-        const hasAvatar = await db.schema.hasColumn("comptes", "avatar");
-        if(!hasAvatar){
-            await db.schema.alterTable("comptes", (table) => {
-                table.string("avatar");
-            });
-        }
     }
 
     // Table posts

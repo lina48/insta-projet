@@ -5,7 +5,7 @@ body {
     justify-content: flex-end; /* décalage à droite */
     align-items: center;       /* centré verticalement */
     min-height: 100vh;
-    background: url('../Image/nuitv1.jpg') no-repeat center center fixed;
+    background: url('https://cdna.artstation.com/p/assets/images/images/047/160/908/original/pxsprite-space.gif?1646911392') no-repeat center center fixed;
     background-size: cover;
     justify-content: flex-end;
     padding-right: 200px; /* espace du bord droit */

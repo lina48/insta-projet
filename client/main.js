@@ -24,6 +24,8 @@ function randomTags(){
 
 async function fetchCurrentAccount(){
   try{
+    // Supprime uniquement la clé 'currentAccount'
+    // localStorage.clear();
     // Récupère le compte depuis localStorage (défini lors du login)
     const storedAccount = localStorage.getItem('currentAccount');
     if(storedAccount){
@@ -290,6 +292,7 @@ function setupDom(){
   const btnLogout = $('#btnLogout');
   if(btnLogout) btnLogout.onclick = ()=>{
     currentAccount = null;
+    localStorage.clear();
     latestPosts = [];
     // Redirect to login page
     window.location.href = '/login.html';

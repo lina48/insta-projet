@@ -6,15 +6,12 @@ async function seed(){
 
   // sample comptes
   const accounts = [
-    { id: 'u_lina', name: 'lina', email: 'lina@example.com', mdp: 'password123' },
-    { id: 'u_william', name: 'william', email: 'william@example.com', mdp: 'password123' },
-    { id: 'u_kerian', name: 'kerian', email: 'kerian@example.com', mdp: 'password123' }
+    { name: 'lina', email: 'lina@example.com', mdp: 'password123' },
+    { name: 'william', email: 'william@example.com', mdp: 'password123' },
+    { name: 'kerian', email: 'kerian@example.com', mdp: 'password123' }
   ];
 
-  for(const a of accounts){
-    const exists = await db('comptes').where({ id: a.id }).first();
-    if(!exists) await db('comptes').insert(a);
-  }
+  accounts = await db('comptes').insert()
 
   // sample posts (using picsum images)
   const sampleImages = [
