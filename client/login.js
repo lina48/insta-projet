@@ -48,13 +48,11 @@ async function login(event){
         const data = await res.json();
 
         if(res.ok){
-            // Stocke dans localStorage comme ton tableau local
-            comptes = [data]; // tableau d’un seul compte pour simuler ton “clients”
-            localStorage.setItem('id_compte', data.id);
-            localStorage.setItem('name', data.name);
+            // Stocke le compte complet dans localStorage
+            localStorage.setItem('currentAccount', JSON.stringify(data));
 
-            // Redirection
-            window.location.href = 'index.html';
+            // Redirection vers index.html
+            window.location.href = '/index.html';
         } else {
             showError(data.error || "Erreur inconnue");
         }

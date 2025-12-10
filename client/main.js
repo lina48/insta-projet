@@ -24,17 +24,19 @@ function randomTags(){
 
 async function fetchCurrentAccount(){
   try{
-    const res = await fetch('/allcompte');
-    if(!res.ok) throw new Error('Failed to fetch comptes');
-    const comptes = await res.json();
-    if(Array.isArray(comptes) && comptes.length>0){
-      currentAccount = comptes[0];
+    // Récupère le compte depuis localStorage (défini lors du login)
+    const storedAccount = localStorage.getItem('currentAccount');
+    if(storedAccount){
+      currentAccount = JSON.parse(storedAccount);
     } else {
-      currentAccount = null;
+      // Si pas de compte stocké, rediriger vers login
+      window.location.href = '/login.html';
+      return;
     }
   }catch(err){
     console.error('fetchCurrentAccount error', err);
     currentAccount = null;
+    window.location.href = '/login.html';
   }
   renderUserInfo();
 }
@@ -82,6 +84,7 @@ function renderFeed(posts, filter=''){
 
 function renderPostCard(post,user){
   const liked = user && post.likes && post.likes.includes(user.name);
+  const isOwner = user && post.author === user.name;
   return `
   <div class="card post-card" data-id="${post.id}">
     <div class="card-header">
@@ -90,6 +93,7 @@ function renderPostCard(post,user){
           <figure class="image is-32x32"><img src="${post.avatar}"/></figure>
           <strong>${escapeHtml(post.author)}</strong>
         </div>
+        ${isOwner ? `<button class="delete is-medium delete-post-btn" data-id="${post.id}" aria-label="delete" title="Supprimer ce post"></button>` : ''}
       </div>
     </div>
     <div class="card-image">
@@ -126,6 +130,7 @@ function attachPostHandlers(){
   $all('.comment-open').forEach(b=>{b.onclick=()=>{const el=document.querySelector(`#c_${b.dataset.id}`);el && el.scrollIntoView({behavior:'smooth',block:'center'});} });
   $all('.hashtag').forEach(h=>h.onclick=()=>{ $('#searchInput').value = h.dataset.tag; renderFeed(latestPosts,h.dataset.tag); });
   $all('.share-btn').forEach(b=>b.onclick=()=>sharePost(b.dataset.id));
+  $all('.delete-post-btn').forEach(b=>b.onclick=()=>deletePost(b.dataset.id));
   $all('.show-more-btn').forEach(btn=>btn.onclick=()=>{
     const id = btn.dataset.id;
     const card = document.querySelector(`.post-card[data-id="${id}"]`);
@@ -179,18 +184,49 @@ function sharePost(postId){
   }
 }
 
+async function deletePost(postId){
+  if(!currentAccount){ showAlert('No account available','is-warning'); return }
+  if(!confirm('Êtes-vous sûr de vouloir supprimer ce post ?')) return;
+  
+  try{
+    const res = await fetch(`/deletePost/${encodeURIComponent(postId)}`, {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id_compte: currentAccount.id })
+    });
+    if(!res.ok) {
+      const error = await res.json();
+      showAlert(error.error || 'Impossible de supprimer le post','is-danger');
+      return;
+    }
+    showAlert('Post supprimé avec succès','is-success');
+    await fetchPostsFromServer();
+  }catch(err){
+    console.error('deletePost error', err);
+    showAlert('Impossible de supprimer le post','is-danger');
+  }
+}
+
 function renderUserInfo(){
   const profileNav = $('#profileNav');
   if(!profileNav) return;
   if(currentAccount){
-    profileNav.innerHTML = `<figure class="image is-40x40"><img src="https://i.pravatar.cc/40?u=${encodeURIComponent(currentAccount.name)}" alt="${escapeHtml(currentAccount.name)}"/></figure><div class="profile-info"><strong>${escapeHtml(currentAccount.name)}</strong></div>`;
+    const avatarUrl = currentAccount.avatar || `https://i.pravatar.cc/40?u=${encodeURIComponent(currentAccount.name)}`;
+    profileNav.innerHTML = `<figure class="image is-40x40"><img src="${avatarUrl}" alt="${escapeHtml(currentAccount.name)}"/></figure><div class="profile-info"><strong>${escapeHtml(currentAccount.name)}</strong></div>`;
   } else {
     profileNav.innerHTML = `<div class="profile-info"><strong>Guest</strong></div>`;
   }
 }
 
 function setupDom(){
+  // Wire settings modal
+  function openModal(sel){document.querySelector(sel).classList.add('is-active')}
+  function closeModal(sel){document.querySelector(sel).classList.remove('is-active')}
   
+  function wireModal(id){
+    $all(`${id} .delete, ${id} .cancel, ${id} .modal-background`).forEach(el=>el.onclick=()=>closeModal(id));
+  }
+  wireModal('#modalSettings');
 
   $all('.menu-list a').forEach(a => a.onclick = async (e)=>{
     e.preventDefault();
@@ -204,8 +240,8 @@ function setupDom(){
       const url = prompt('Enter image URL:');
       if(url){
         if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
-        const caption = prompt('Add a caption:') || '';
-        fetch('/addPost', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ image: url, id_compte: currentAccount.id }) })
+        const caption = prompt('Add a caption (with hashtags like #nature #travel):') || '';
+        fetch('/addPost', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ image: url, id_compte: currentAccount.id, caption }) })
         .then(r=>{
           if(!r.ok) throw new Error('Failed to create post');
           showAlert('Post created!','is-success');
@@ -213,11 +249,59 @@ function setupDom(){
         }).catch(err=>{ console.error('addPost error',err); showAlert('Impossible de créer le post','is-danger'); });
       }
     }
-    else if(id === 'menuSettings') showAlert('Settings feature coming soon','is-info');
+    else if(id === 'menuSettings') {
+      if(!currentAccount){ showAlert('No account available','is-warning'); return; }
+      // Pre-fill the settings form
+      $('#settingsUsername').value = currentAccount.name || '';
+      $('#settingsEmail').value = currentAccount.email || '';
+      $('#settingsAvatar').value = currentAccount.avatar || '';
+      openModal('#modalSettings');
+    }
   });
 
-  // search
-  const search = $('#searchInput'); if(search) search.addEventListener('keyup',e=>{ if(e.key==='Enter'){ renderFeed(latestPosts, $('#searchInput').value||''); } });
+  // Settings submit handler
+  const submitSettings = $('#submitSettings');
+  if(submitSettings) submitSettings.onclick = async ()=>{
+    if(!currentAccount) return;
+    const name = $('#settingsUsername').value.trim();
+    const email = $('#settingsEmail').value.trim();
+    const avatar = $('#settingsAvatar').value.trim();
+    
+    try{
+      const res = await fetch(`/updatecompte/${currentAccount.id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, email, avatar })
+      });
+      if(!res.ok) throw new Error('Failed to update profile');
+      const updated = await res.json();
+      currentAccount = updated;
+      renderUserInfo();
+      closeModal('#modalSettings');
+      showAlert('Profil mis à jour avec succès!','is-success');
+      await fetchPostsFromServer(); // Refresh posts to show updated author names
+    }catch(err){
+      console.error('updatecompte error', err);
+      showAlert('Impossible de mettre à jour le profil','is-danger');
+    }
+  };
+
+  // Logout handler
+  const btnLogout = $('#btnLogout');
+  if(btnLogout) btnLogout.onclick = ()=>{
+    currentAccount = null;
+    latestPosts = [];
+    // Redirect to login page
+    window.location.href = '/login.html';
+  };
+
+  // search - trigger on every keystroke for live search
+  const search = $('#searchInput'); 
+  if(search) {
+    search.addEventListener('keyup',()=>{ 
+      renderFeed(latestPosts, search.value||''); 
+    });
+  }
 
   // info sur le compte 
   const profileNav = $('#profileNav');

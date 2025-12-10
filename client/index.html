@@ -6,10 +6,11 @@
     <title>Instagram</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="cssClient/index.css">
   </head>
   <body>
-    <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="#">
           <strong>Instagram</strong>
@@ -101,6 +102,49 @@
         <footer class="modal-card-foot">
           <button id="submitLogin" class="button is-primary">Log in</button>
           <button class="button cancel">Cancel</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modalSettings" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Paramètres du profil</p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Nom d'utilisateur</label>
+            <div class="control">
+              <input id="settingsUsername" class="input" type="text" placeholder="Nom d'utilisateur">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Adresse email</label>
+            <div class="control">
+              <input id="settingsEmail" class="input" type="email" placeholder="email@example.com">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">URL de la photo de profil</label>
+            <div class="control">
+              <input id="settingsAvatar" class="input" type="url" placeholder="https://example.com/avatar.jpg">
+            </div>
+            <p class="help">Laissez vide pour utiliser l'avatar par défaut</p>
+          </div>
+          <hr>
+          <div class="field">
+            <button id="btnLogout" class="button is-danger is-fullwidth">
+              <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+              <span>Déconnexion</span>
+            </button>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button id="submitSettings" class="button is-success">Enregistrer les modifications</button>
+          <button class="button cancel">Annuler</button>
         </footer>
       </div>
     </div>

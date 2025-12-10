@@ -6,9 +6,9 @@ async function seed(){
 
   // sample comptes
   const accounts = [
-    { id: 'u_alice', name: 'Alice', email: 'alice@example.com', mdp: 'password' },
-    { id: 'u_bob', name: 'Bob', email: 'bob@example.com', mdp: 'password' },
-    { id: 'u_carol', name: 'Carol', email: 'carol@example.com', mdp: 'password' }
+    { id: 'u_lina', name: 'lina', email: 'lina@example.com', mdp: 'password123' },
+    { id: 'u_william', name: 'william', email: 'william@example.com', mdp: 'password123' },
+    { id: 'u_kerian', name: 'kerian', email: 'kerian@example.com', mdp: 'password123' }
   ];
 
   for(const a of accounts){

@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 // Ajout d'un post
 app.post('/addPost', async (req, res) => {
     try {
-        const { image, id_compte } = req.body;
+        const { image, id_compte, caption } = req.body;
 
         // Vérifier si le compte existe
         const compte = await db("comptes").where({ id: id_compte }).first();
@@ -38,7 +38,8 @@ app.post('/addPost', async (req, res) => {
         const post = {
         id: crypto.randomUUID(),
         image: String(image || "https://picsum.photos/400/280?random=" + Math.floor(Math.random()* 1000)),
-        id_compte
+        id_compte,
+        caption: caption || `Photo by ${compte.name}`
         }
         await db("posts").insert(post);
         res.status(201).json(post);
@@ -58,7 +59,8 @@ app.get('/allPost', async (req, res) => {
             // récupère le compte auteur
             const compte = await db('comptes').where({ id: p.id_compte }).first();
             const author = compte ? compte.name : 'unknown';
-            const avatar = `https://i.pravatar.cc/80?u=${encodeURIComponent(author)}`;
+            // Utilise l'avatar personnalisé de la BD, sinon Pravatar par défaut
+            const avatar = (compte && compte.avatar) ? compte.avatar : `https://i.pravatar.cc/80?u=${encodeURIComponent(author)}`;
 
             // récupère les likes (liste des comptes qui ont liké)
             const likesRows = await db('likes').where({ id_post: p.id }).select('id_compte');
@@ -74,13 +76,18 @@ app.get('/allPost', async (req, res) => {
                 return { user: c ? c.name : cmt.id_compte, text: cmt.commentaire };
             }));
 
+            // Extract hashtags from caption if any
+            const caption = p.caption || `Photo by ${author}`;
+            const hashtagRegex = /#[\wÀ-ÿ]+/g;
+            const tags = caption.match(hashtagRegex) || [];
+
             return {
                 id: p.id,
                 url: p.image,
                 author,
                 avatar,
-                caption: `Photo by ${author}`,
-                tags: [],
+                caption: caption,
+                tags: tags,
                 likes,
                 comments
             };
@@ -162,6 +169,30 @@ app.delete("/deletelike/:id", async(req, res) => {
         res.status(500).json({error: "Erreur serveur.."})
     }
 })
+
+// Delete post
+app.delete('/deletePost/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { id_compte } = req.body;
+        
+        // Vérifier que le post appartient à l'utilisateur
+        const post = await db('posts').where({ id }).first();
+        if(!post) {
+            return res.status(404).json({ error: 'Post introuvable' });
+        }
+        
+        if(post.id_compte !== id_compte) {
+            return res.status(403).json({ error: 'Vous ne pouvez supprimer que vos propres posts' });
+        }
+        
+        await db('posts').where({ id }).del();
+        res.status(200).json({ message: 'Post supprimé' });
+    } catch(err) {
+        console.error('Erreur /deletePost/:id', err);
+        res.status(500).json({ error: 'Erreur serveur..' });
+    }
+});
 
 // Toggle like: if user already liked -> remove, else add
 app.post('/toggleLike/:id', async (req, res) => {
@@ -299,6 +330,34 @@ app.get('/allcompte', async (req, res) => {
         res.status(200).json(likes)
     } catch(err){
         console.error("Erreur /allcompte", err);
+        res.status(500).json({error: "Erreur serveur.." })
+    }
+});
+
+// Update compte profile
+app.put('/updatecompte/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email, avatar } = req.body;
+
+        const compte = await db("comptes").where({ id }).first();
+        if (!compte) {
+            return res.status(404).json({ error: "Compte introuvable" });
+        }
+
+        const updates = {};
+        if (name !== undefined) updates.name = name;
+        if (email !== undefined) updates.email = email;
+        if (avatar !== undefined) updates.avatar = avatar;
+
+        if (Object.keys(updates).length > 0) {
+            await db("comptes").where({ id }).update(updates);
+        }
+
+        const updatedCompte = await db("comptes").where({ id }).first();
+        res.status(200).json(updatedCompte);
+    } catch(err) {
+        console.error("Erreur /updatecompte/:id", err);
         res.status(500).json({error: "Erreur serveur.." })
     }
 });

@@ -21,8 +21,17 @@ async function createTable(){
              table.string("name").notNullable();
              table.decimal("email").notNullable();
              table.string("mdp").notNullable();
+             table.string("avatar");
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
+    } else {
+        // Add avatar column if it doesn't exist (migration)
+        const hasAvatar = await db.schema.hasColumn("comptes", "avatar");
+        if(!hasAvatar){
+            await db.schema.alterTable("comptes", (table) => {
+                table.string("avatar");
+            });
+        }
     }
 
     // Table posts
@@ -34,8 +43,17 @@ async function createTable(){
              table.decimal("id_compte").notNullable()
                   .references("id").inTable("comptes")
                   .onDelete("CASCADE");
+             table.text("caption");
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
+    } else {
+        // Add caption column if it doesn't exist (migration)
+        const hasCaption = await db.schema.hasColumn("posts", "caption");
+        if(!hasCaption){
+            await db.schema.alterTable("posts", (table) => {
+                table.text("caption");
+            });
+        }
     }
 
     // Table commentaires

@@ -63,8 +63,60 @@ function interceptIfInvalid(event) {
 }
 
 if (form) { //N'execute pas la commande du bouton si les password ne sont pas based
-  form.addEventListener('submit', function (event) {
-    interceptIfInvalid(event);
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    console.log('Form submitted!');
+    
+    if(interceptIfInvalid(event)) {
+      console.log('Password validation failed');
+      return;
+    }
+    
+    // Récupérer les valeurs du formulaire
+    const email = document.getElementById('email').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const mdp = passwordInput.value.trim();
+    
+    console.log('Form data:', { email, name, mdp: '***' });
+    
+    if(!email || !name || !mdp) {
+      alert('Veuillez remplir tous les champs');
+      return;
+    }
+    
+    try {
+      console.log('Sending request to /addcompte...');
+      // Créer le compte via l'API
+      const res = await fetch('/addcompte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, mdp })
+      });
+      
+      console.log('Response status:', res.status);
+      
+      if(!res.ok) {
+        const error = await res.json();
+        console.error('Server error:', error);
+        alert(error.error || 'Erreur lors de la création du compte');
+        return;
+      }
+      
+      const newAccount = await res.json();
+      console.log('Account created:', newAccount);
+      
+      // Stocker le compte dans localStorage
+      localStorage.setItem('currentAccount', JSON.stringify(newAccount));
+      console.log('Account stored in localStorage');
+      
+      // Rediriger vers index.html
+      console.log('Redirecting to index.html...');
+      window.location.href = '/index.html';
+      
+    } catch(err) {
+      console.error('Erreur signup:', err);
+      alert('Impossible de créer le compte. Veuillez réessayer.');
+    }
   });
 } else if (createButton) {
   createButton.addEventListener('click', function (event) {
