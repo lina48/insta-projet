@@ -3,14 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="cssClient/signup.css">
     <title>Sign up</title>
@@ -35,6 +27,7 @@
 
             <label class="label" for="password">Mot de passe:</label>
             <input id="password" class="input" type="password" placeholder="●●●●●●●●●●●●" required>
+            <p id="passwordFeedback" class="help" aria-live="polite" style="display:none;"></p>
             <br>
 
             <div class="line"></div>
@@ -45,13 +38,15 @@
                         <button id="enterBtn" class="createButton is-link" type="submit">Créer</button>
                     </div>
                 </div>
-                <p class="already-account gradient" href="Login.html">
-                    Avez-vous déjà un compte?
-                </p>
+                <div class="help">
+                    <p class="already-account gradient" href="Login.html">
+                        Avez-vous déjà un compte?
+                    </p>
+                </div>
             </div>
             <br>
         </form>
     </div>
-    <script src="Script/signup.js"></script>
+    <script src="signup.js"></script>
 </body>
 </html>
