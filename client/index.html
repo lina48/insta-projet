@@ -149,6 +149,35 @@
       </div>
     </div>
 
+    <!-- New Post Modal -->
+    <div id="modalNewPost" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Nouvelle publication</p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">URL de l'image</label>
+            <div class="control"><input id="newPostImage" class="input" type="url" placeholder="https://example.com/photo.jpg"></div>
+          </div>
+          <div class="field">
+            <label class="label">Légende</label>
+            <div class="control"><textarea id="newPostCaption" class="textarea" placeholder="Ajouter une légende (ex: #nature #travel)"></textarea></div>
+          </div>
+          <div class="field">
+            <label class="label">Aperçu</label>
+            <figure class="image is-4by3"><img id="newPostPreview" src="https://picsum.photos/400/280?random=1" alt="Prévisualisation"></figure>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button id="submitNewPost" class="button is-success">Publier</button>
+          <button class="button cancel">Annuler</button>
+        </footer>
+      </div>
+    </div>
+
     <script src="main.js"></script>
   </body>
 </html>

@@ -229,6 +229,7 @@ function setupDom(){
     $all(`${id} .delete, ${id} .cancel, ${id} .modal-background`).forEach(el=>el.onclick=()=>closeModal(id));
   }
   wireModal('#modalSettings');
+  wireModal('#modalNewPost');
 
   $all('.menu-list a').forEach(a => a.onclick = async (e)=>{
     e.preventDefault();
