@@ -240,17 +240,12 @@ function setupDom(){
     else if(id === 'menuDiscover') showAlert('Feature coming soon','is-info');
     else if(id === 'menuSearch'){ const q = prompt('Search posts:'); if(q) renderFeed(latestPosts,q); }
     else if(id === 'menuNewPost'){
-      const url = prompt('Enter image URL:');
-      if(url){
-        if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
-        const caption = prompt('Add a caption (with hashtags like #nature #travel):') || '';
-        fetch('/addPost', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ image: url, id_compte: currentAccount.id, caption }) })
-        .then(r=>{
-          if(!r.ok) throw new Error('Failed to create post');
-          showAlert('Post created!','is-success');
-          return fetchPostsFromServer();
-        }).catch(err=>{ console.error('addPost error',err); showAlert('Impossible de créer le post','is-danger'); });
-      }
+      if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
+      // Reset and show the New Post modal
+      $('#newPostImage').value = '';
+      $('#newPostCaption').value = '';
+      $('#newPostPreview').src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
+      openModal('#modalNewPost');
     }
     else if(id === 'menuSettings') {
       if(!currentAccount){ showAlert('No account available','is-warning'); return; }
