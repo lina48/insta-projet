@@ -1,6 +1,6 @@
-const knex = require('knex');
+const knex = require('knex'); //un query builder SQL pour Node.js
 
-const db = knex({
+const db = knex({           //connectée à un fichier SQLite local
     client: 'sqlite3',
     connection: { 
        filename: "./db_insta.sqlite3",
@@ -80,4 +80,5 @@ async function createTable(){
        });
     }
 }
-module.exports = {db, createTable};
+module.exports = {db, createTable};  //Exporte l'instance db (pour faire des requêtes) 
+                                    // et createTable (pour initialiser le schéma au démarrage du serveur)
