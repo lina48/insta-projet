@@ -60,7 +60,7 @@ async function fetchCurrentAccount(){
   renderUserInfo();
 }
 
-// récupère la liste des posts sur le serveur, enrichit le format
+// récupère la liste des posts sur le serveur 
 // et met à jour `latestPosts` puis le rendu du feed.
 async function fetchPostsFromServer(){
   try{
@@ -84,9 +84,7 @@ async function fetchPostsFromServer(){
   }
 }
 
-// Rendu du feed
-// posts: tableau de posts (format interne)
-// filter: chaîne optionnelle utilisée pour filtrer caption/tags
+
 function renderFeed(posts, filter=''){
   const feed = $('#feed');
   const user = currentAccount;
@@ -106,9 +104,7 @@ function renderFeed(posts, filter=''){
   attachPostHandlers();
 }
 
-// construit le HTML d'une carte de post (retourné en string)
-// post: objet post
-// user: compte courant (pour déterminer like/propriétaire)
+
 function renderPostCard(post,user){
   const liked = user && post.likes && post.likes.includes(user.name);
   const isOwner = user && post.author === user.name;
@@ -151,8 +147,8 @@ function renderPostCard(post,user){
   </div>`;
 }
 
-// Attache les handlers (click, submit) aux éléments rendus dans le feed.
-// À appeler après `renderFeed` car les éléments sont recréés dynamiquement.
+
+
 function attachPostHandlers(){
   $all('.like-btn').forEach(b=>b.onclick=()=>toggleLike(b.dataset.id));
   $all('.comment-submit').forEach(b=>b.onclick=()=>submitComment(b.dataset.id));
@@ -217,7 +213,7 @@ function sharePost(postId){
   }
 }
 
-// Supprime un post (vérifie côté serveur que l'utilisateur est propriétaire)
+
 async function deletePost(postId){
   if(!currentAccount){ showAlert('No account available','is-warning'); return }
   if(!confirm('Êtes-vous sûr de vouloir supprimer ce post ?')) return;
@@ -241,7 +237,7 @@ async function deletePost(postId){
   }
 }
 
-// Met à jour la zone de navigation utilisateur (`#profileNav`) avec
+// met à jour la zone de navigation utilisateur (`#profileNav`) avec
 // l'avatar et le nom du `currentAccount`.
 function renderUserInfo(){
   const profileNav = $('#profileNav');
@@ -254,8 +250,6 @@ function renderUserInfo(){
   }
 }
 
-// initialise les interactions du DOM : menus, modals, formulaires
-// cette fonction attache aussi les handlers du formulaire de nouvelle publication.
 function setupDom(){
   
   function openModal(sel){document.querySelector(sel).classList.add('is-active')}
