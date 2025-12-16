@@ -8,7 +8,7 @@ body{background:#f5f5f5;margin:0}
 .menu-list .icon{width:20px;display:flex;align-items:center;justify-content:center}
 #profileNav{display:flex;align-items:center;gap:12px}
 #profileNav img{width:40px;height:40px;border-radius:50%;object-fit:cover}
-#profileNav .profile-info strong{font-size:0.95rem}
+#profileNav .profile-info strong{font-size:0.95rem;color:#ffffff}
 #authButtons .button{margin-left:0.5rem}
 .card-image{width:100%;overflow:hidden}
 .card-image img{object-fit:cover;width:100%;height:auto;display:block}

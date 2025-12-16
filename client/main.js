@@ -241,11 +241,16 @@ function setupDom(){
     else if(id === 'menuSearch'){ const q = prompt('Search posts:'); if(q) renderFeed(latestPosts,q); }
     else if(id === 'menuNewPost'){
       if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
-      // Reset and show the New Post modal
-      $('#newPostImage').value = '';
-      $('#newPostCaption').value = '';
-      $('#newPostPreview').src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
-      openModal('#modalNewPost');
+      // Show inline new post form at top of feed
+      const npc = $('#newpostFormContainer');
+      if(npc){
+        npc.style.display = 'block';
+        const img = $('#newpostImageUrl'); if(img) img.focus();
+        // scroll to form
+        npc.scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        showAlert('Formulaire de publication introuvable','is-danger');
+      }
     }
     else if(id === 'menuSettings') {
       if(!currentAccount){ showAlert('No account available','is-warning'); return; }
@@ -314,7 +319,6 @@ function setupDom(){
   }
 
   // --- Inline newpost form handlers (top of feed) ---
-  const newpostBtn = $('#newpost');
   const newpostForm = $('#newpostFormContainer');
   const newpostImageUrl = $('#newpostImageUrl');
   const newpostCaption = $('#newpostCaption');
@@ -322,21 +326,13 @@ function setupDom(){
   const newpostCancel = $('#newpostCancel');
   const newpostSubmit = $('#newpostSubmit');
 
-  if(newpostBtn && newpostForm){
-    newpostBtn.addEventListener('click', ()=>{
-      // toggle
-      if(newpostForm.style.display === 'none' || !newpostForm.style.display){
-        newpostForm.style.display = 'block';
-        newpostImageUrl && newpostImageUrl.focus();
-      } else {
-        newpostForm.style.display = 'none';
-      }
-    });
-  }
-
   if(newpostCancel && newpostForm){
     newpostCancel.addEventListener('click', ()=>{
-      newpostForm.style.display = 'none';
+      // clear inputs but keep form visible
+      if(newpostImageUrl) newpostImageUrl.value = '';
+      if(newpostCaption) newpostCaption.value = '';
+      if(newpostPreview) newpostPreview.src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
+      newpostImageUrl && newpostImageUrl.focus();
     });
   }
 
@@ -362,11 +358,10 @@ function setupDom(){
         if(!res.ok) throw new Error('Erreur création post');
         const created = await res.json();
         showAlert('Publication créée','is-success');
-        // reset & hide
+        // reset inputs but keep form visible
         newpostImageUrl.value = '';
         newpostCaption.value = '';
         newpostPreview.src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
-        if(newpostForm) newpostForm.style.display = 'none';
         await fetchPostsFromServer();
       }catch(err){
         console.error('newpost submit error', err);

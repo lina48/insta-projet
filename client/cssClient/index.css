@@ -116,6 +116,7 @@ body {
 
 #profileNav .profile-info strong {
   font-size: 0.95rem;
+  color: #ffffff;
 }
 
 #authButtons .button {
@@ -146,6 +147,23 @@ body {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
+}
+
+/* Inline new post form should match post card width/appearance */
+#newpostFormContainer .card {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 12px;
+}
+
+#newpostPreview {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .post-wrapper {
@@ -322,4 +340,27 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
+}
+
+/* Ensure inputs / textarea / labels in the new-post area are readable on dark background */
+#newpostFormContainer,
+#newpostFormContainer .card,
+#newpostFormContainer .control,
+#newpostFormContainer label,
+#newpostFormContainer .input,
+#newpostFormContainer .textarea,
+#newpostFormContainer .button {
+  color: #ffffff !important;
+}
+
+#newpostFormContainer .input::placeholder,
+#newpostFormContainer .textarea::placeholder {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Make profile nav text and small metadata consistently white */
+#profileNav .profile-info,
+.post-meta,
+.post-meta strong {
+  color: #ffffff;
 }
