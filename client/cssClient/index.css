@@ -297,3 +297,22 @@ body {
     padding: 0 1rem;
   }
 } 
+
+/* Styles for inline newpost form */
+#newpost {
+  background-color: #ff3860;
+  color: #fff;
+  border: none;
+}
+
+#newpostFormContainer .card {
+  background-color: rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+#newpostPreview {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}

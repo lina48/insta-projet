@@ -257,6 +257,7 @@ function setupDom(){
     }
   });
 
+
   // Settings submit handler
   const submitSettings = $('#submitSettings');
   if(submitSettings) submitSettings.onclick = async ()=>{
@@ -284,6 +285,7 @@ function setupDom(){
     }
   };
 
+
   // Logout handler
   const btnLogout = $('#btnLogout');
   if(btnLogout) btnLogout.onclick = ()=>{
@@ -309,6 +311,68 @@ function setupDom(){
       if(!currentAccount){ showAlert('No account selected from server','is-info'); }
       else showAlert(`Logged as ${currentAccount.name}`,'is-info');
     };
+  }
+
+  // --- Inline newpost form handlers (top of feed) ---
+  const newpostBtn = $('#newpost');
+  const newpostForm = $('#newpostFormContainer');
+  const newpostImageUrl = $('#newpostImageUrl');
+  const newpostCaption = $('#newpostCaption');
+  const newpostPreview = $('#newpostPreview');
+  const newpostCancel = $('#newpostCancel');
+  const newpostSubmit = $('#newpostSubmit');
+
+  if(newpostBtn && newpostForm){
+    newpostBtn.addEventListener('click', ()=>{
+      // toggle
+      if(newpostForm.style.display === 'none' || !newpostForm.style.display){
+        newpostForm.style.display = 'block';
+        newpostImageUrl && newpostImageUrl.focus();
+      } else {
+        newpostForm.style.display = 'none';
+      }
+    });
+  }
+
+  if(newpostCancel && newpostForm){
+    newpostCancel.addEventListener('click', ()=>{
+      newpostForm.style.display = 'none';
+    });
+  }
+
+  if(newpostImageUrl && newpostPreview){
+    newpostImageUrl.addEventListener('input', ()=>{
+      const v = newpostImageUrl.value.trim();
+      if(v) newpostPreview.src = v;
+      else newpostPreview.src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
+    });
+  }
+
+  if(newpostSubmit){
+    newpostSubmit.addEventListener('click', async ()=>{
+      if(!currentAccount){ showAlert('Vous devez être connecté pour publier','is-warning'); return; }
+      const image = newpostImageUrl.value.trim();
+      const caption = newpostCaption.value.trim();
+      if(!image){ showAlert("Veuillez saisir l'URL de l'image","is-warning"); return; }
+      try{
+        const res = await fetch('/addPost',{
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ image, id_compte: currentAccount.id, caption })
+        });
+        if(!res.ok) throw new Error('Erreur création post');
+        const created = await res.json();
+        showAlert('Publication créée','is-success');
+        // reset & hide
+        newpostImageUrl.value = '';
+        newpostCaption.value = '';
+        newpostPreview.src = `https://picsum.photos/400/280?random=${Math.floor(Math.random()*1000)}`;
+        if(newpostForm) newpostForm.style.display = 'none';
+        await fetchPostsFromServer();
+      }catch(err){
+        console.error('newpost submit error', err);
+        showAlert('Impossible de créer la publication','is-danger');
+      }
+    });
   }
 }
 
