@@ -8,7 +8,7 @@ const db = knex({           //connectée à un fichier SQLite local
     useNullAsDefault: true
 });
 
-// Active les foreign keys
+// Active les cles étrangères
 db.raw('PRAGMA foreign_keys = ON');
 
 async function createTable(){
@@ -34,7 +34,7 @@ async function createTable(){
              table.string("image").notNullable();
              table.decimal("id_compte").notNullable()
                   .references("id").inTable("comptes")
-                  .onDelete("CASCADE");
+                  .onDelete("CASCADE"); //si le compte est supprimé les posts sont supprimés aussi
              table.text("caption");
              table.timestamp("created_at").defaultTo(db.fn.now());
        });
@@ -54,8 +54,8 @@ async function createTable(){
         await db.schema.createTable("commentaires", (table)=>{
              table.string("id").primary();
              table.string("id_post").notNullable()
-                  .references("id").inTable("posts")
-                  .onDelete("CASCADE");
+                  .references("id").inTable("posts")  
+                  .onDelete("CASCADE");   //si le post est supprimé les commentaires sont supprimés aussi
              table.string("id_compte").notNullable()
                   .references("id").inTable("comptes")
                   .onDelete("CASCADE");
@@ -71,7 +71,7 @@ async function createTable(){
              table.string("id").primary();
              table.string("id_post").notNullable()
                   .references("id").inTable("posts")
-                  .onDelete("CASCADE");
+                  .onDelete("CASCADE");  //si le post est supprimé les likes sont supprimés aussi
              table.string("id_compte").notNullable()
                   .references("id").inTable("comptes")
                   .onDelete("CASCADE");
