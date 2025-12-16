@@ -300,9 +300,16 @@ body {
 
 /* Styles for inline newpost form */
 #newpost {
-  background-color: #ff3860;
+  background-color: rgba(31, 31, 62, 0.85);
   color: #fff;
   border: none;
+  backdrop-filter: blur(2px);
+  transition: background-color 150ms ease, transform 120ms ease;
+}
+
+#newpost:hover {
+  background-color: rgba(13, 22, 23, 0.95);
+  transform: translateY(-2px);
 }
 
 #newpostFormContainer .card {
