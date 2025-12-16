@@ -1,32 +1,49 @@
+// URL de test pour récupérer des images aléatoires (utilisé seulement comme fallback)
 const API_URL = 'https://picsum.photos/v2/list?page=1&limit=40';
+
+// tags d'exemple utilisés pour générer des tags aléatoires si nécessaire
 const sampleTags = ['#nature','#travel','#photo','#city','#people','#food','#art','#cute','#landscape','#pets','#sunset','#fashion'];
 
+// raccourcis DOM : sélection d'un seul élément
 function $(sel){return document.querySelector(sel)}
+
+// Raccourci DOM : sélection de plusieurs éléments (retourne un tableau)
 function $all(sel){return Array.from(document.querySelectorAll(sel))}
 
 // compte à partir du serveur 
+// Objet représentant le compte courant (stocké en localStorage après login)
 let currentAccount = null; 
+
+// tableau contenant les posts récupérés depuis le serveur (cache côté client)
 let latestPosts = [];
 
+// affiche une notification temporaire en haut du feed
+// msg: texte à afficher
+// kind: classe Bulma pour le style 
 function showAlert(msg, kind='is-info'){
   const container = $('#alertContainer');
   if(container) container.innerHTML = `<div class="notification ${kind}">${msg}</div>`;
+  
   setTimeout(()=>{ if(container) container.innerHTML=''; },3000);
 }
 
+
 function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// genere ensemble de tags pour le test 
 function randomTags(){
   const shuffled = sampleTags.sort(()=>0.5-Math.random());
   const count = Math.floor(Math.random()*3)+1;
   return shuffled.slice(0,count);
 }
 
+// récupère le compte courant depuis localStorage.
+// si aucun compte n'est présent, redirige vers la page de login.
 async function fetchCurrentAccount(){
   try{
-    // Supprime uniquement la clé 'currentAccount'
+    // supprime uniquement la clé 'currentAccount'
     // localStorage.clear();
-    // Récupère le compte depuis localStorage (défini lors du login)
+    // récupère le compte depuis localStorage (défini lors du login)
     const storedAccount = localStorage.getItem('currentAccount');
     if(storedAccount){
       currentAccount = JSON.parse(storedAccount);
@@ -43,6 +60,8 @@ async function fetchCurrentAccount(){
   renderUserInfo();
 }
 
+// récupère la liste des posts sur le serveur, enrichit le format
+// et met à jour `latestPosts` puis le rendu du feed.
 async function fetchPostsFromServer(){
   try{
     const res = await fetch('/allPost');
@@ -65,6 +84,9 @@ async function fetchPostsFromServer(){
   }
 }
 
+// Rendu du feed
+// posts: tableau de posts (format interne)
+// filter: chaîne optionnelle utilisée pour filtrer caption/tags
 function renderFeed(posts, filter=''){
   const feed = $('#feed');
   const user = currentAccount;
@@ -84,6 +106,9 @@ function renderFeed(posts, filter=''){
   attachPostHandlers();
 }
 
+// construit le HTML d'une carte de post (retourné en string)
+// post: objet post
+// user: compte courant (pour déterminer like/propriétaire)
 function renderPostCard(post,user){
   const liked = user && post.likes && post.likes.includes(user.name);
   const isOwner = user && post.author === user.name;
@@ -126,6 +151,8 @@ function renderPostCard(post,user){
   </div>`;
 }
 
+// Attache les handlers (click, submit) aux éléments rendus dans le feed.
+// À appeler après `renderFeed` car les éléments sont recréés dynamiquement.
 function attachPostHandlers(){
   $all('.like-btn').forEach(b=>b.onclick=()=>toggleLike(b.dataset.id));
   $all('.comment-submit').forEach(b=>b.onclick=()=>submitComment(b.dataset.id));
@@ -144,8 +171,10 @@ function attachPostHandlers(){
   });
 }
 
+// basculer le like pour le post donné pour l'utilisateur courant.
+// envoie la requête au serveur et recharge le feed après succès.
 async function toggleLike(postId){
-  if(!currentAccount){ showAlert('No account available to like posts','is-warning'); return }
+  if(!currentAccount){ showAlert('pas de compte disponible ','is-warning'); return }
   try{
     const res = await fetch(`/toggleLike/${encodeURIComponent(postId)}`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
@@ -159,6 +188,7 @@ async function toggleLike(postId){
   }
 }
 
+// envoie un commentaire pour le post donné et recharge le feed.
 async function submitComment(postId){
   if(!currentAccount){ showAlert('No account available to comment','is-warning'); return }
   const input = document.querySelector(`.comment-input[data-id="${postId}"]`);
@@ -178,6 +208,7 @@ async function submitComment(postId){
   }
 }
 
+
 function sharePost(postId){
   const p = latestPosts.find(x=>x.id===postId); if(!p) return;
   const url = p.url;
@@ -186,6 +217,7 @@ function sharePost(postId){
   }
 }
 
+// Supprime un post (vérifie côté serveur que l'utilisateur est propriétaire)
 async function deletePost(postId){
   if(!currentAccount){ showAlert('No account available','is-warning'); return }
   if(!confirm('Êtes-vous sûr de vouloir supprimer ce post ?')) return;
@@ -209,6 +241,8 @@ async function deletePost(postId){
   }
 }
 
+// Met à jour la zone de navigation utilisateur (`#profileNav`) avec
+// l'avatar et le nom du `currentAccount`.
 function renderUserInfo(){
   const profileNav = $('#profileNav');
   if(!profileNav) return;
@@ -220,8 +254,10 @@ function renderUserInfo(){
   }
 }
 
+// initialise les interactions du DOM : menus, modals, formulaires
+// cette fonction attache aussi les handlers du formulaire de nouvelle publication.
 function setupDom(){
-  // Wire settings modal
+  
   function openModal(sel){document.querySelector(sel).classList.add('is-active')}
   function closeModal(sel){document.querySelector(sel).classList.remove('is-active')}
   
@@ -240,8 +276,8 @@ function setupDom(){
     else if(id === 'menuDiscover') showAlert('Feature coming soon','is-info');
     else if(id === 'menuSearch'){ const q = prompt('Search posts:'); if(q) renderFeed(latestPosts,q); }
     else if(id === 'menuNewPost'){
-      if(!currentAccount){ showAlert('No server account available to create post','is-warning'); return; }
-      // Show inline new post form at top of feed
+      if(!currentAccount){ showAlert('pas de compte disponible ','is-warning'); return; }
+      
       const npc = $('#newpostFormContainer');
       if(npc){
         npc.style.display = 'block';
