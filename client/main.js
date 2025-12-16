@@ -11,7 +11,7 @@ function $(sel){return document.querySelector(sel)}
 function $all(sel){return Array.from(document.querySelectorAll(sel))}
 
 // compte à partir du serveur 
-// Objet représentant le compte courant (stocké en localStorage après login)
+// objet représentant le compte courant (stocké en localStorage après login)
 let currentAccount = null; 
 
 // tableau contenant les posts récupérés depuis le serveur (cache côté client)
